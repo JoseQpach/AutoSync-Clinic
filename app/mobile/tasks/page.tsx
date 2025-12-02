@@ -1,17 +1,18 @@
 "use client";
 
-import { ChevronLeft, FileText, Download, Play, MessageSquare, AudioLines, File as FileIcon } from 'lucide-react';
+import { ChevronLeft, FileText, Download, Play, MessageSquare, AudioLines, File as FileIcon, CalendarCheck } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
-// Define la estructura del recurso para tipado
+// Define la estructura del recurso (TIPOS LITERALES)
 interface Resource {
     id: string;
     title: string;
     url: string;
     type: string;
     date: string;
-    status: 'Pendiente' | 'Completado';
+    status: 'Pendiente' | 'Completado'; // Tipos estrictos
 }
 
 const getIcon = (type: string) => {
@@ -29,8 +30,8 @@ const getIcon = (type: string) => {
 
 export default function MobileTasksPage() {
     const [resources, setResources] = useState<Resource[]>([]);
-
-    // Carga los recursos desde LocalStorage al cargar la página
+    const router = useRouter();
+    
     useEffect(() => {
         const storedResources = localStorage.getItem('assigned_resources');
         if (storedResources) {
@@ -44,7 +45,7 @@ export default function MobileTasksPage() {
                 type: 'Audio / Meditación',
                 date: '10 Dic',
                 status: 'Pendiente'
-            }]);
+            } as Resource]); // Añadimos aserción para el mock inicial
         }
     }, []);
 
@@ -52,11 +53,15 @@ export default function MobileTasksPage() {
         setResources(prevResources => {
             const updatedResources = prevResources.map(resource =>
                 resource.id === id
-                    ? { ...resource, status: resource.status === 'Pendiente' ? 'Completado' : 'Pendiente' }
+                    ? ({ 
+                        ...resource, 
+                        // SOLUCIÓN: Forzamos el tipo explícitamente con la aserción final
+                        status: (resource.status === 'Pendiente' ? 'Completado' : 'Pendiente') as 'Pendiente' | 'Completado'
+                      } as Resource)
                     : resource
             );
-            // Opcional: Guardar el cambio en LocalStorage si quieres persistencia
-            // localStorage.setItem('assigned_resources', JSON.stringify(updatedResources));
+            // Guardar el cambio en LocalStorage
+            localStorage.setItem('assigned_resources', JSON.stringify(updatedResources));
             return updatedResources;
         });
     };
@@ -76,7 +81,7 @@ export default function MobileTasksPage() {
                 {/* Lista de Tareas */}
                 <div className="p-4 space-y-4">
                     {resources.length === 0 ? (
-                        <p className="text-textSecondary text-center mt-8">No tienes tareas asignadas por ahora. ¡A disfrutar!</p>
+                        <p className="text-textSecondary text-center mt-8">No tienes tareas asignadas por ahora.</p>
                     ) : (
                         resources.map((resource) => (
                             <div key={resource.id} className="bg-background border border-border rounded-xl p-4 space-y-3 shadow-md">
@@ -121,22 +126,6 @@ export default function MobileTasksPage() {
                         ))
                     )}
                 </div>
-
-                {/* Barra de Navegación Inferior (Simulada) */}
-                <footer className="fixed bottom-0 w-full max-w-sm bg-background border-t border-border flex justify-around p-3">
-                    <div className='flex flex-col items-center text-primary'>
-                        <CalendarCheck size={24} />
-                        <span className='text-xs mt-1'>Citas</span>
-                    </div>
-                    <div className='flex flex-col items-center text-textSecondary'>
-                        <MessageSquare size={24} />
-                        <span className='text-xs mt-1'>Chat</span>
-                    </div>
-                    <Link href="/mobile/tasks" className='flex flex-col items-center text-textSecondary'>
-                         <FileText size={24} />
-                        <span className='text-xs mt-1'>Tareas</span>
-                    </Link>
-                </footer>
             </div>
         </div>
     );
