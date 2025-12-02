@@ -11,7 +11,7 @@ export default function MobileDashboard() {
         doctor: 'Dr(a). [Tu Nombre]',
         type: 'Psicología'
     };
-    // Contadores simulados (en un futuro, leerá de Supabase)
+    // Contadores simulados
     const pendingTasks = 3; 
 
     return (
@@ -55,7 +55,7 @@ export default function MobileDashboard() {
                                 <FileText size={20} className='text-accent'/>
                                 <div>
                                     <h3 className='text-white font-bold'>Tareas Asignadas</h3>
-                                    <p className='text-xs text-danger'>3 pendientes</p>
+                                    <p className='text-xs text-danger'>{pendingTasks} pendientes</p>
                                 </div>
                             </div>
                             <ChevronRight size={20} className='text-textSecondary' />
